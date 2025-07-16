@@ -129,7 +129,7 @@
           const label = String.fromCharCode(97 + idx) + '.';
           const raw = await cleanHTML(div.innerText || div.textContent || '');
           const stripped = raw
-            .replace(/^[a-dA-D]\.\s*/i, '') // remove leading a. if exists
+            .replace(/^[a-dA-D]\.\s*/i, '')
             .replace(/\b(Correct|Incorrect)\b/g, '')
             .trim();
           return `${label} ${stripped}`;
@@ -224,7 +224,9 @@
 
     const csvData = uniqueQuestions.map(q => {
       const front = normaliseSpacing(`${q.question}\n\n${q.options.join('\n')}`);
-      const back = normaliseSpacing(`Correct Answer: ${q.correct}\n\nExplanation:\n\n${q.explanation || "No explanation available"}`);
+      const back = normaliseSpacing(
+        `**Correct Answer:** ${q.correct}\n\n**Explanation:**\n\n${q.explanation || "No explanation available"}`
+      );
       return [
         `"${front.replace(/"/g, '""')}"`,
         `"${back.replace(/"/g, '""')}"`
