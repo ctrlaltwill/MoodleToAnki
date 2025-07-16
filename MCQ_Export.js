@@ -106,7 +106,7 @@
       .replace(/\n{3,}/g, '\n\n')
       .replace(/^\s*\n+/g, '')
       .replace(/\n+\s*$/, '')
-      .replace(/(Explanation:)\s*/i, '$1\n\n');
+      .replace(/(Explanation:)\s*/i, '');
   }
 
   async function extractAllQuestions() {
@@ -125,14 +125,13 @@
         const questionText = await cleanHTML(questionHTML);
 
         const answerDivs = [...qDiv.querySelectorAll('.answer > div')];
-        const options = await Promise.all(answerDivs.map(async (div, idx) => {
-          const label = String.fromCharCode(97 + idx) + '.';
+        const options = await Promise.all(answerDivs.map(async (div) => {
           const raw = await cleanHTML(div.innerText || div.textContent || '');
           const stripped = raw
             .replace(/^[a-dA-D]\.\s*/i, '')
             .replace(/\b(Correct|Incorrect)\b/g, '')
             .trim();
-          return `${label} ${stripped}`;
+          return stripped;
         }));
 
         const correctHTML = qDiv.querySelector('.rightanswer')?.innerHTML || '';
@@ -223,10 +222,9 @@
     console.log(`📦 Total unique questions saved: ${uniqueQuestions.length}`);
 
     const csvData = uniqueQuestions.map(q => {
-      const front = normaliseSpacing(`${q.question}\n\n${q.options.join('\n')}`);
-      const back = normaliseSpacing(
-        `**Correct Answer:** ${q.correct}\n\n**Explanation:**\n\n${q.explanation || "No explanation available"}`
-      );
+      const optionListHTML = '<ol>' + q.options.map(opt => `<li>${opt}</li>`).join('') + '</ol>';
+      const front = `${q.question}<br>${optionListHTML}`;
+      const back = `<b>Correct Answer:</b> ${q.correct}<br>${q.explanation || "No further explanation provided"}`;
       return [
         `"${front.replace(/"/g, '""')}"`,
         `"${back.replace(/"/g, '""')}"`
